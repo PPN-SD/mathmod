@@ -4035,17 +4035,19 @@ Value_t FunctionParserBase<Value_t>::Eval2(const Value_t* Vars, unsigned NbVar, 
             {
                 unsigned index = byteCode[++IP];
                 unsigned params = mData->mFuncParsers[index].mParams;
-                Value_t res[NbStack];
+                std::vector<Value_t> res(NbStack);
                 Value_t rest=mData->mFuncParsers[index].mParserPtr->Eval2
-                (&(Stacki[SP-params+1]), Size, res, NbStack);
+                (&(Stacki[SP-params+1]), Size, &(res[0]), NbStack);
                 if (rest == Value_t(5))
                 {
                     mData->mEvalErrorType = IF_FUNCT_ERROR;
+                    res.clear();
                     return Value_t(mData->mEvalErrorType);
                 }
                 if (rest == Value_t(7))
                 {
                     mData->mEvalErrorType = VAR_OVERFLOW;
+                    res.clear();
                     return Value_t(7);
                 }
                 for(Nbval=0; Nbval<NbStack; Nbval++)
@@ -4053,6 +4055,7 @@ Value_t FunctionParserBase<Value_t>::Eval2(const Value_t* Vars, unsigned NbVar, 
                   Stacki[Nbval*Size+SP - (int(params)-1)] = res[Nbval];
                 }
                 SP -= int(params)-1;
+                res.clear();
                 break;
             }
 // Variables:
